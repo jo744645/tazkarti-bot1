@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 BOT_TOKEN = '7204967716:AAGJZ5lGRqcn0DNR2zJelfRqCFpZOvGeN8U'
 CHAT_ID = '1103230055'
 
-# كلمات البحث
-keywords = ["الأهلي", "Al Ahly", "Ahly", "AL-AHLY", "Al Ahly FC"]
+# كلمات البحث للمصري
+keywords = ["المصري", "Al Masry", "Al-Masry SC", "AL-MASRY", "Al Masry FC"]
 
 # رابط موقع تذكرتي
 url = 'https://www.tazkarti.com/#/matches'
@@ -26,7 +26,7 @@ def send_telegram_message(message):
 
 def check_tickets():
     global ticket_sent
-    print("⏳ جاري التحقق من تذاكر الأهلي...")
+    print("⏳ جاري التحقق من تذاكر المصري...")
 
     try:
         r = requests.get(url, timeout=10)
@@ -41,13 +41,13 @@ def check_tickets():
             if not ticket_sent:
                 print("✅ التذاكر متاحة! إرسال إشعار...")
                 send_telegram_message(
-                    "🎟 فيه تذاكر متاحة لـ Al Ahly FC!\nاحجز من هنا: https://www.tazkarti.com/#/matches"
+                    "🎟 فيه تذاكر متاحة لـ Al Masry FC!\nاحجز من هنا: https://www.tazkarti.com/#/matches"
                 )
                 ticket_sent = True
             else:
                 print("✅ التذاكر متاحة لكن تم الإرسال قبل كده.")
         else:
-            print("❌ مفيش تذاكر مفتوحة للأهلي دلوقتي.")
+            print("❌ مفيش تذاكر مفتوحة للمصري دلوقتي.")
 
     except Exception as e:
         print("⚠️ حصل خطأ:", e)
