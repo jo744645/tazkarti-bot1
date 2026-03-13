@@ -1,0 +1,28 @@
+name: Tazkarti Bot
+
+on:
+  schedule:
+    - cron: "* * * * *"
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: تحميل الكود
+      uses: actions/checkout@v3
+
+    - name: تثبيت بايثون
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: تثبيت Chrome
+      uses: browser-actions/setup-chrome@v1
+
+    - name: تثبيت المكتبات
+      run: pip install -r requirements.txt
+
+    - name: تشغيل البوت
+      run: python once.py
