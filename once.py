@@ -4,14 +4,19 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 
 # إعدادات تليجرام
 BOT_TOKEN = '7204967716:AAGJZ5lGRqcn0DNR2zJelfRqCFpZOvGeN8U'
 CHAT_ID = '1103230055'
 
-# كلمات البحث للمصري
-keywords = ["المصري", "Al Masry", "Al-Masry SC", "AL-MASRY", "Al Masry FC"]
+# كلمات البحث
+keywords = ["الأهلي", "Al Ahly", "Ahly", "AL-AHLY", "Al Ahly FC"]
+
+# إعداد Selenium
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
 
 # رابط موقع تذكرتي
 url = 'https://www.tazkarti.com/#/matches'
@@ -29,27 +34,17 @@ def send_telegram_message(message):
 
 def check_tickets():
     global ticket_sent
-    print("⏳ جاري التحقق من تذاكر المصري...")
+    print("⏳ جاري التحقق من تذاكر الأهلي...")
 
     try:
-        # إعدادات Chrome Headless
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-
         driver = webdriver.Chrome(options=options)
         driver.get(url)
 
-        # ننتظر شويه حتى تحميل الصفحة
         time.sleep(5)
 
-        # جلب الصفحة بعد تنفيذ JS
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
         driver.quit()
 
-        # التحقق من الكلمات المفتاحية وفتح الحجز
         tickets_available = (
             any(word.lower() in soup.text.lower() for word in keywords)
             and "تم غلق الحجز" not in soup.text
@@ -59,24 +54,27 @@ def check_tickets():
             if not ticket_sent:
                 print("✅ التذاكر متاحة! إرسال إشعار...")
                 send_telegram_message(
-                    "🎟 فيه تذاكر متاحة لـ Al Masry FC!\nاحجز من هنا: https://www.tazkarti.com/#/matches"
+                    "🎟 فيه تذاكر متاحة لـ Al Ahly FC!\nاحجز من هنا: https://www.tazkarti.com/#/matches"
                 )
                 ticket_sent = True
             else:
                 print("✅ التذاكر متاحة لكن تم الإرسال قبل كده.")
         else:
-            print("❌ مفيش تذاكر مفتوحة للمصري دلوقتي.")
+            print("❌ مفيش تذاكر مفتوحة للأهلي دلوقتي.")
 
     except Exception as e:
         print("⚠️ حصل خطأ:", e)
 
-# تشغيل كل دقيقة
-interval = 60
+# تشغيل كل 10 ثواني بالظبط
+interval = 10
 
 while True:
     start_time = time.time()
+
     check_tickets()
+
     elapsed = time.time() - start_time
     sleep_time = interval - elapsed
+
     if sleep_time > 0:
         time.sleep(sleep_time)
