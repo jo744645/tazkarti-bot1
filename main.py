@@ -52,8 +52,8 @@ def check_tickets():
     except Exception as e:
         print("⚠️ حصل خطأ:", e)
 
-# تشغيل كل 3 دقائق
-interval = 180
+# تشغيل كل دقيقة
+interval = 60
 
 while True:
     start_time = time.time()
