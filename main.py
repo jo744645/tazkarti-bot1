@@ -2,8 +2,6 @@
 import time
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
 # إعدادات تليجرام
 BOT_TOKEN = '7204967716:AAGJZ5lGRqcn0DNR2zJelfRqCFpZOvGeN8U'
@@ -11,12 +9,6 @@ CHAT_ID = '1103230055'
 
 # كلمات البحث
 keywords = ["الأهلي", "Al Ahly", "Ahly", "AL-AHLY", "Al Ahly FC"]
-
-# إعداد Selenium
-options = Options()
-options.add_argument('--headless')
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
 
 # رابط موقع تذكرتي
 url = 'https://www.tazkarti.com/#/matches'
@@ -37,13 +29,8 @@ def check_tickets():
     print("⏳ جاري التحقق من تذاكر الأهلي...")
 
     try:
-        driver = webdriver.Chrome(options=options)
-        driver.get(url)
-
-        time.sleep(5)
-
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        driver.quit()
+        r = requests.get(url, timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
 
         tickets_available = (
             any(word.lower() in soup.text.lower() for word in keywords)
@@ -54,7 +41,7 @@ def check_tickets():
             if not ticket_sent:
                 print("✅ التذاكر متاحة! إرسال إشعار...")
                 send_telegram_message(
-                    "🎟️ فيه تذاكر متاحة لـ Al Ahly FC!\nاحجز من هنا: https://www.tazkarti.com/#/matches"
+                    "🎟 فيه تذاكر متاحة لـ Al Ahly FC!\nاحجز من هنا: https://www.tazkarti.com/#/matches"
                 )
                 ticket_sent = True
             else:
@@ -65,16 +52,13 @@ def check_tickets():
     except Exception as e:
         print("⚠️ حصل خطأ:", e)
 
-# تشغيل كل 10 ثواني بالظبط
-interval = 10
+# تشغيل كل 3 دقائق
+interval = 180
 
 while True:
     start_time = time.time()
-
     check_tickets()
-
     elapsed = time.time() - start_time
     sleep_time = interval - elapsed
-
     if sleep_time > 0:
         time.sleep(sleep_time)
